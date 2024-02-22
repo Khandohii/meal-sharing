@@ -21,6 +21,22 @@ app.use(cors());
 
 router.use("/meals", mealsRouter);
 
+app.get("/my-route", (req, res) => {
+  res.send("Hi friend");
+});
+
+app.get("/future-meals", (req, res) => {
+  res.send("Respond with all meals in the future (relative to the when datetime)");
+});
+
+app.get("/past-meals", (req, res) => {
+  res.send("Respond with all meals in the past (relative to the when datetime)");
+});
+
+app.get("/all-meals", (req, res) => {
+  res.send("Respond with all meals sorted by ID");
+});
+
 if (process.env.API_PATH) {
   app.use(process.env.API_PATH, router);
 } else {
