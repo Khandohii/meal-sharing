@@ -7,6 +7,7 @@ const mealsRouter = require("./api/meals");
 const buildPath = path.join(__dirname, "../../dist");
 const port = process.env.PORT || 3000;
 const cors = require("cors");
+const knex = require("./database");
 
 // For week4 no need to look into this!
 // Serve the built client html
@@ -25,16 +26,74 @@ app.get("/my-route", (req, res) => {
   res.send("Hi friend");
 });
 
-app.get("/future-meals", (req, res) => {
-  res.send("Respond with all meals in the future (relative to the when datetime)");
+app.get("/future-meals", async (req, res) => {
+  try {
+    const meals = await knex("meal").select("*").where('when', '>', knex.fn.now());
+
+    if (meals.length > 0) {
+      res.json(meals);
+    } else{
+      res.status(404).send("There is not future meals");
+    }
+  } catch (error) {
+    throw error;
+  }
 });
 
-app.get("/past-meals", (req, res) => {
-  res.send("Respond with all meals in the past (relative to the when datetime)");
+app.get("/past-meals", async (req, res) => {
+  try {
+    const meals = await knex("meal").select("*").where('when', '<', knex.fn.now());
+
+    if (meals.length > 0) {
+      res.json(meals);
+    } else{
+      res.status(404).send("There is not past meals");
+    }
+  } catch (error) {
+    throw error;
+  }
 });
 
-app.get("/all-meals", (req, res) => {
-  res.send("Respond with all meals sorted by ID");
+app.get("/all-meals", async (req, res) => {
+  try {
+    const meals = await knex("meal").select("*");
+
+    if (meals.length > 0) {
+      res.json(meals);
+    } else{
+      res.status(404).send("There is not meals");
+    }
+  } catch (error) {
+    throw error;
+  }
+});
+
+app.get("/first-meal", async (req, res) => {
+  try {
+    const meals = await knex("meal").select("*").orderBy('id').limit(1);
+
+    if (meals.length > 0) {
+      res.json(meals);
+    } else{
+      res.status(404).send("There is not first meal");
+    }
+  } catch (error) {
+    throw error;
+  }
+});
+
+app.get("/last-meal", async (req, res) => {
+  try {
+    const meals = await knex("meal").select("*").orderBy('id', 'desc').limit(1);
+
+    if (meals.length > 0) {
+      res.json(meals);
+    } else{
+      res.status(404).send("There is not last meal");
+    }
+  } catch (error) {
+    throw error;
+  }
 });
 
 if (process.env.API_PATH) {
