@@ -5,21 +5,21 @@ const knex = require("../database");
 router.get("/", async (request, response) => {
   try {
     // knex syntax for selecting things. Look up the documentation for knex for further info
-    const meals = await knex("meal").select("*");
-    response.json(meals);
+    const data = await knex("reservation").select("*");
+    response.json(data);
   } catch (error) {
     throw error;
   }
 });
 
 router.post('/', async (req, res) => {
-  const data = req.body;
+  const dataReq = req.body;
   try {
-    if (data) {
-      data.created_date = new Date();
-      await knex('meal').insert(data);
+    if (dataReq) {
+      dataReq.created_date = new Date();
+      await knex('reservation').insert(dataReq);
 
-      res.status(201).json(data)
+      res.status(201).json(dataReq)
     }
   } catch (error) {
     throw error;
@@ -30,10 +30,10 @@ router.get("/:id", async (req, res) => {
   const reqId = +req.params.id;
 
   try {
-    const meals = await knex("meal").select("*").where('id', reqId);
+    const data = await knex("reservation").select("*").where('id', reqId);
 
-    if (meals.length > 0) {
-      res.json(meals);
+    if (data.length > 0) {
+      res.json(data);
     } else{
       res.status(404).send("ID doesn't exist")
     }
@@ -48,10 +48,10 @@ router.put("/:id", async (req, res) => {
 
   try {
     if (Object.keys(data).length !== 0) {
-      const mealData = await knex('meal').where('id', reqId);
+      const mealData = await knex('reservation').where('id', reqId);
 
       if (mealData.length > 0) {
-        await knex('meal').where('id', reqId).update(data)
+        await knex('reservation').where('id', reqId).update(data)
         res.json(data)
       } else{
         res.status(404).send("ID doesn't exist")
@@ -68,7 +68,7 @@ router.delete("/:id", async (req, res) => {
   const reqId = +req.params.id;
 
   try {
-    const data = await knex('meal').where('id', reqId).del();
+    const data = await knex('reservation').where('id', reqId).del();
 
     if (data) {
       res.send('Deleted')
