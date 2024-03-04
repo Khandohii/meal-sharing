@@ -1,15 +1,21 @@
-const express = require("express");
-const app = express();
-const router = express.Router();
-const path = require("path");
+import express from 'express';
+import path from 'path';
+import mealsRouter from './api/meals.js';
+import reservationsRouter from './api/reservations.js';
+import reveiewsRouter from './api/reviews.js';
+import cors from 'cors';
+import knex from './database.js';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
 
-const mealsRouter = require("./api/meals");
-const reservationsRouter = require("./api/reservations.js");
-const reveiewsRouter = require("./api/reviews.js");
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+const router = express.Router();
+const app = express();
+
 const buildPath = path.join(__dirname, "../../dist");
 const port = process.env.PORT || 3000;
-const cors = require("cors");
-const knex = require("./database");
 
 // For week4 no need to look into this!
 // Serve the built client html
@@ -111,4 +117,4 @@ app.use("*", (req, res) => {
   res.sendFile(path.join(`${buildPath}/index.html`));
 });
 
-module.exports = app;
+export default app;

@@ -1,12 +1,13 @@
-const express = require("express");
-const router = express.Router();
-const knex = require("../database");
+import express from 'express';
+import knex from '../database.js';
 
-router.get("/", async (request, response) => {
+const router = express.Router();
+
+router.get("/", async (req, res) => {
   try {
     // knex syntax for selecting things. Look up the documentation for knex for further info
     const data = await knex("review").select("*");
-    response.json(data);
+    res.json(data);
   } catch (error) {
     throw error;
   }
@@ -21,7 +22,7 @@ router.post('/', async (req, res) => {
       dataReq.created_date = new Date();
       await knex('review').insert(dataReq);
 
-      res.status(201).json(dataReq);
+      res.status(201).json(dataReq); 
     }
   } catch (error) {
     throw error;
@@ -82,4 +83,5 @@ router.delete("/:id", async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;
+

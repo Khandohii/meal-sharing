@@ -1,6 +1,7 @@
-const express = require("express");
+import express from 'express';
+import knex from '../database.js';
+
 const router = express.Router();
-const knex = require("../database");
 
 function dateFormat(date) {
   const parts = date.split('-');
@@ -8,14 +9,14 @@ function dateFormat(date) {
   const month = parts[1];
   const day = parts[2];
 
-  return new Date(year, month - 1, day);
+  return new Date(year, month - 1, day); 
 }
 
 router.get("/", async (req, res) => {
 
   try {
     const {maxPrice, limit, title, dateAfter, dateBefore, sortKey, sortDir, availableReservations} = req.query;
-    // knex syntax for selecting things. Look up the documentation for knex for further info
+    
     let meals = knex("meal").select("*");
 
     if (maxPrice) {
@@ -147,4 +148,5 @@ router.delete("/:id", async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;
+
