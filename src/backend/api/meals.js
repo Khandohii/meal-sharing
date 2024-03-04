@@ -2,11 +2,62 @@ const express = require("express");
 const router = express.Router();
 const knex = require("../database");
 
-router.get("/", async (request, response) => {
+function dateFormat(date) {
+  const parts = date.split('-');
+  const year = parts[0];
+  const month = parts[1];
+  const day = parts[2];
+
+  return new Date(year, month - 1, day);
+}
+
+router.get("/", async (req, res) => {
+
   try {
+    const {maxPrice, limit, title, dateAfter, dateBefore, sortKey, sortDir, availableReservations} = req.query;
     // knex syntax for selecting things. Look up the documentation for knex for further info
-    const meals = await knex("meal").select("*");
-    response.json(meals);
+    let meals = knex("meal").select("*");
+
+    if (maxPrice) {
+      meals = meals.where('price', '<=', parseInt(maxPrice));
+    }
+
+    if (limit) {
+      meals = meals.limit(parseInt(limit));
+    }
+
+    if (title) {
+      meals = meals.where('title', 'like', `%${title}%`);
+    }
+
+    if (dateAfter) {
+      meals = meals.where('when', '>', dateFormat(dateAfter));
+    }
+
+    if (dateBefore) {
+      meals = meals.where('when', '<', dateFormat(dateBefore));
+    }
+
+    if (sortKey && !sortKey) {
+      meals = meals.orderBy(sortKey);
+    }
+
+    if (sortDir && sortKey) {
+      meals = meals.orderBy(sortKey, sortDir);
+    }
+
+    if (availableReservations) {
+
+      if (availableReservations === true) {
+        meals = meals.leftJoin('reservation', 'reservation.meal_id', '=', 'meal.id')
+        .whereRaw('max_reservations > COALESCE(reservation.number_of_guests, 0)')
+        .groupBy('meal.id')
+      }
+    }
+
+    const finalQuery = await meals;
+
+    res.json(finalQuery);
   } catch (error) {
     throw error;
   }
@@ -25,6 +76,22 @@ router.post('/', async (req, res) => {
     throw error;
   }
 })
+
+router.get("/:id/reviews", async (req, res) => {
+  const reqId = +req.params.id;
+
+  try {
+    const data = await knex("review").select("*").where('meal_id', reqId);
+
+    if (data.length > 0) {
+      res.json(data);
+    } else{
+      res.status(404).send("Reviews don't exist");
+    }
+  } catch (error) {
+    throw error;
+  }
+});
 
 router.get("/:id", async (req, res) => {
   const reqId = +req.params.id;
