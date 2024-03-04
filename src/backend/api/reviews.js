@@ -5,7 +5,8 @@ const router = express.Router();
 
 router.get("/", async (req, res) => {
   try {
-    const data = await knex("reservation").select("*");
+    // knex syntax for selecting things. Look up the documentation for knex for further info
+    const data = await knex("review").select("*");
     res.json(data);
   } catch (error) {
     throw error;
@@ -14,12 +15,14 @@ router.get("/", async (req, res) => {
 
 router.post('/', async (req, res) => {
   const dataReq = req.body;
+
+  console.log(dataReq);
   try {
     if (dataReq) {
       dataReq.created_date = new Date();
-      await knex('reservation').insert(dataReq);
+      await knex('review').insert(dataReq);
 
-      res.status(201).json(dataReq)
+      res.status(201).json(dataReq); 
     }
   } catch (error) {
     throw error;
@@ -30,7 +33,7 @@ router.get("/:id", async (req, res) => {
   const reqId = +req.params.id;
 
   try {
-    const data = await knex("reservation").select("*").where('id', reqId);
+    const data = await knex("review").select("*").where('id', reqId);
 
     if (data.length > 0) {
       res.json(data);
@@ -48,10 +51,10 @@ router.put("/:id", async (req, res) => {
 
   try {
     if (Object.keys(data).length !== 0) {
-      const mealData = await knex('reservation').where('id', reqId);
+      const mealData = await knex('review').where('id', reqId);
 
       if (mealData.length > 0) {
-        await knex('reservation').where('id', reqId).update(data)
+        await knex('review').where('id', reqId).update(data)
         res.json(data)
       } else{
         res.status(404).send("ID doesn't exist")
@@ -68,7 +71,7 @@ router.delete("/:id", async (req, res) => {
   const reqId = +req.params.id;
 
   try {
-    const data = await knex('reservation').where('id', reqId).del();
+    const data = await knex('review').where('id', reqId).del();
 
     if (data) {
       res.send('Deleted')
